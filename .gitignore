@@ -1,0 +1,14 @@
+*.egg-info/
+.coverage
+.idea/
+.mypy_cache/
+.vscode/
+__pycache__/
+backup/
+backups/
+build/
+dist/
+docs/_build
+env/
+htmlcov/
+venv/

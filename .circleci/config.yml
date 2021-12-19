@@ -1,0 +1,127 @@
+version: 2.1
+
+orbs:
+  bitcartcc: bitcartcc/bitcartcc-shared@1
+
+executors:
+  main-executor:
+    parameters:
+      v:
+        type: string
+        default: "3.7"
+
+    docker:
+      - image: cimg/python:<< parameters.v >>
+
+    environment:
+      TEST_ARGS: "--junitxml test-results/pytest/coverage.xml --cov-report html:coverage"
+
+commands:
+  install_dependencies:
+    steps:
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ .Branch }}-{{ checksum "~/.pyenv/version" }}-{{ checksum "setup.py" }}-{{ checksum "test-requirements.txt" }}
+
+      - run:
+          name: install library
+          command: |
+            virtualenv ~/venv
+            echo ". ~/venv/bin/activate" >> $BASH_ENV
+            source $BASH_ENV
+            pip install .
+            pip install -U -r test-requirements.txt
+
+      - save_cache:
+          paths:
+            - ~/venv
+          key: v1-dependencies-{{ .Branch }}-{{ checksum "~/.pyenv/version" }}-{{ checksum "setup.py" }}-{{ checksum "test-requirements.txt" }}
+
+  upload-results:
+    steps:
+      - store_test_results:
+          path: test-results
+
+      - store_artifacts:
+          path: coverage
+
+      - store_artifacts:
+          path: test-results
+
+jobs:
+  test:
+    parameters:
+      v:
+        type: string
+
+    executor:
+      name: main-executor
+      v: << parameters.v >>
+
+    environment:
+      PYTHON: << parameters.v >>
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - install_dependencies
+
+      - run:
+          name: run fast tests
+          command: |
+            make ci
+            codecov -e PYTHON
+
+      - upload-results
+
+  deploy:
+    executor: bitcartcc/docker-python
+    docker:
+      - image: cimg/python:3.7
+    steps:
+      - checkout
+
+      - run:
+          name: setup credentials
+          command: |
+            echo -e "[pypi]" >> ~/.pypirc
+            echo -e "username = $PYPI_USER" >> ~/.pypirc
+            echo -e "password = $PYPI_PASS" >> ~/.pypirc
+
+      - run:
+          name: create env, build dist and upload
+          command: |
+            virtualenv ~/venv
+            . ~/venv/bin/activate
+            pip install -U wheel twine
+            python setup.py sdist
+            python setup.py bdist_wheel
+            twine upload dist/*
+
+workflows:
+  version: 2
+  test_and_deploy:
+    jobs:
+      - bitcartcc/lint:
+          name: lint
+      - test:
+          name: test-<< matrix.v >>
+          requires:
+            - lint
+          matrix:
+            parameters:
+              v:
+                - "3.7"
+                - "3.8"
+                - "3.9"
+                - "3.10"
+
+      - deploy:
+          context: global
+          filters:
+            tags:
+              only: /[0-9]+(\.[0-9]+)*/
+            branches:
+              ignore: /.*/
