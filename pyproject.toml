@@ -33,5 +33,6 @@ omit = [
     "tests/*",
     "venv/*",
     "env/*",
+    "universalasync/version.py",
     "setup.py",
 ]

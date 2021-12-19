@@ -71,14 +71,12 @@ def run(coro):
 
 def sync_work(client, called):
     client.sync_method()
-    client.async_method()
-    called.value = True
+    called.value = client.async_method() is True
 
 
 async def async_work(client, called):
     client.sync_method()
-    await client.async_method()
-    called.value = True
+    called.value = await client.async_method() is True
 
 
 base_src = inspect.getsource(run) + "\n" + inspect.getsource(sync_work) + "\n" + inspect.getsource(async_work)

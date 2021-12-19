@@ -85,7 +85,7 @@ def async_to_sync(obj: object, name: str, is_property: bool = False) -> None:
     setattr(obj, name, async_to_sync_wraps(function, is_property=is_property))
 
 
-def wrap(source: object) -> None:
+def wrap(source: object) -> object:
     for name in dir(source):
         method = getattr(source, name)
 
@@ -93,3 +93,5 @@ def wrap(source: object) -> None:
             is_property = inspect.isdatadescriptor(method)
             if inspect.iscoroutinefunction(method) or inspect.isasyncgenfunction(method) or is_property:
                 async_to_sync(source, name, is_property=is_property)
+
+    return source

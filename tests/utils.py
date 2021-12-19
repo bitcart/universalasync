@@ -1,3 +1,7 @@
+from universalasync import wrap
+
+
+@wrap
 class SampleClass:
     def sync_method(self):
         return True
