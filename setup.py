@@ -22,7 +22,7 @@ setup(
     keywords=["async", "await", "bitcartcc", "universal", "sync", "asyncio", "asynctosync", "synctoasync"],
     install_requires=[],
     classifiers=[
-        "Development Status :: 5 - Production/Stable",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Libraries",
         "Topic :: Utilities",
