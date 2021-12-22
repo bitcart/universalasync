@@ -84,6 +84,8 @@ def async_to_sync_wraps(function: Callable, is_property: bool = False) -> Callab
 
 def shutdown_tasks(loop: asyncio.AbstractEventLoop) -> None:
     to_cancel = asyncio.all_tasks(loop)
+    if not to_cancel:
+        return
     for task in to_cancel:
         task.cancel()
     loop.run_until_complete(asyncio.gather(*to_cancel, return_exceptions=True))
