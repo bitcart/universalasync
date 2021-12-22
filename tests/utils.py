@@ -16,3 +16,10 @@ class SampleClass:
     @property
     async def async_property(self):
         return True
+
+    async def async_gen(self):
+        for i in range(10):
+            yield i
+
+    async def async_interrupt(self):
+        raise KeyboardInterrupt()

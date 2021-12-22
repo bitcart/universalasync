@@ -2,13 +2,26 @@ import asyncio
 import functools
 import inspect
 import threading
-from typing import Any, AsyncGenerator, Callable, List
+from typing import Any, AsyncGenerator, Callable, Generator, Tuple
 
 from .utils import get_event_loop
 
 
-async def consume_generator(coroutine: AsyncGenerator) -> List[Any]:
-    return [i async for i in coroutine]
+def iter_over_async(ait: AsyncGenerator, run_func: Callable) -> Generator:
+    ait = ait.__aiter__()
+
+    async def get_next() -> Tuple[bool, Any]:
+        try:
+            obj = await ait.__anext__()
+            return False, obj
+        except StopAsyncIteration:
+            return True, None
+
+    while True:
+        done, obj = run_func(get_next())
+        if done:
+            break
+        yield obj
 
 
 def run_sync_ctx(coroutine: Any, loop: asyncio.AbstractEventLoop) -> Any:
@@ -16,9 +29,7 @@ def run_sync_ctx(coroutine: Any, loop: asyncio.AbstractEventLoop) -> Any:
         return loop.run_until_complete(coroutine)
 
     if inspect.isasyncgen(coroutine):
-        return loop.run_until_complete(consume_generator(coroutine))
-
-    return coroutine
+        return iter_over_async(coroutine, lambda coro: loop.run_until_complete(coro))
 
 
 def run_from_another_thread(coroutine: Any, loop: asyncio.AbstractEventLoop, main_loop: asyncio.AbstractEventLoop) -> Any:
@@ -36,7 +47,7 @@ def run_from_another_thread(coroutine: Any, loop: asyncio.AbstractEventLoop, mai
         if loop.is_running():
             return coroutine
         else:
-            return asyncio.run_coroutine_threadsafe(consume_generator(coroutine), main_loop).result()
+            return iter_over_async(coroutine, lambda coro: asyncio.run_coroutine_threadsafe(coro, main_loop).result())
 
 
 def async_to_sync_wraps(function: Callable, is_property: bool = False) -> Callable:
@@ -72,11 +83,10 @@ def async_to_sync_wraps(function: Callable, is_property: bool = False) -> Callab
 
 
 def shutdown_tasks(loop: asyncio.AbstractEventLoop) -> None:
-    tasks = asyncio.gather(*asyncio.all_tasks(loop), return_exceptions=True)
-    tasks.add_done_callback(lambda t: loop.stop())
-    tasks.cancel()
-    while not tasks.done() and not loop.is_closed():
-        loop.run_forever()
+    to_cancel = asyncio.all_tasks(loop)
+    for task in to_cancel:
+        task.cancel()
+    loop.run_until_complete(asyncio.gather(*to_cancel, return_exceptions=True))
 
 
 def async_to_sync(obj: object, name: str, is_property: bool = False) -> None:

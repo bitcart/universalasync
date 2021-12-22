@@ -3,6 +3,7 @@ import multiprocessing
 import os
 import signal
 import time
+import types
 from threading import Thread
 
 import pytest
@@ -71,12 +72,12 @@ def run(coro):
 
 def sync_work(client, called):
     client.sync_method()
-    called.value = client.async_method() is True
+    called.value = client.async_method() is True and isinstance(client.async_gen(), types.GeneratorType)
 
 
 async def async_work(client, called):
     client.sync_method()
-    called.value = await client.async_method() is True
+    called.value = await client.async_method() is True and isinstance(client.async_gen(), types.AsyncGeneratorType)
 
 
 base_src = inspect.getsource(run) + "\n" + inspect.getsource(sync_work) + "\n" + inspect.getsource(async_work)
@@ -110,6 +111,7 @@ def test_async_to_sync_usage(func):
         "idle": idle,
         "get_event_loop": get_event_loop,
         "called": called,
+        "types": types,
     }
 
     def inner():
