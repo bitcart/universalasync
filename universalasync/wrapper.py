@@ -68,10 +68,8 @@ def async_to_sync_wraps(function: Callable, is_property: bool = False) -> Callab
             else:
                 try:
                     return run_sync_ctx(coroutine, loop)
-                except KeyboardInterrupt:
-                    shutdown_tasks(loop)
-                    raise
                 finally:
+                    shutdown_tasks(loop)
                     loop.run_until_complete(loop.shutdown_asyncgens())
         else:
             return run_from_another_thread(coroutine, loop, main_loop)

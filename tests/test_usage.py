@@ -1,4 +1,3 @@
-import inspect
 import multiprocessing
 import os
 import signal
@@ -80,13 +79,6 @@ async def async_work(client, called):
     called.value = await client.async_method() is True and isinstance(client.async_gen(), types.AsyncGeneratorType)
 
 
-base_src = inspect.getsource(run) + "\n" + inspect.getsource(sync_work) + "\n" + inspect.getsource(async_work)
-
-
-# NOTE: we use exec here because there is no easy way to test completely different execution models in one test run
-# this way we achieve isolation
-
-
 @pytest.mark.parametrize(
     "func",
     [
@@ -99,32 +91,22 @@ base_src = inspect.getsource(run) + "\n" + inspect.getsource(sync_work) + "\n" +
     ],
 )
 def test_async_to_sync_usage(func):
-    src = inspect.getsource(globals()[func])
-    call_code = f"{func}(obj, called)"
-    if func.startswith("async_"):
-        call_code = f"run({call_code})"
-    full_src = f"{base_src}\n{src}\nobj = SampleClass()\n{call_code}"
     called = multiprocessing.Value("b", False)
-    global_vars = {
-        "SampleClass": SampleClass,
-        "Thread": Thread,
-        "idle": idle,
-        "get_event_loop": get_event_loop,
-        "called": called,
-        "types": types,
-    }
 
     def inner():
-        exec(full_src, global_vars)
+        obj = SampleClass()
+        result = globals()[func](obj, called)
+        if func.startswith("async_"):
+            result = run(result)
 
     process = multiprocessing.Process(target=inner)
     process.start()
     total = 0
-    while not global_vars["called"].value:
+    while not called.value:
         time.sleep(0.1)
         total += 0.1
         if total >= MAXSECONDS:
             break
     os.kill(process.pid, signal.SIGINT)
     process.join()
-    assert global_vars["called"].value
+    assert called.value
