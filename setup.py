@@ -21,6 +21,7 @@ setup(
     url="https://github.com/bitcartcc/universalasync",
     keywords=["async", "await", "bitcartcc", "universal", "sync", "asyncio", "asynctosync", "synctoasync"],
     install_requires=[],
+    include_package_data=True,
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
