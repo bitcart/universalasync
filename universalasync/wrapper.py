@@ -1,7 +1,6 @@
 import asyncio
 import functools
 import inspect
-import threading
 from typing import Any, AsyncGenerator, Callable, Generator, Tuple
 
 from .utils import get_event_loop
@@ -32,27 +31,7 @@ def run_sync_ctx(coroutine: Any, loop: asyncio.AbstractEventLoop) -> Any:
         return iter_over_async(coroutine, lambda coro: loop.run_until_complete(coro))
 
 
-def run_from_another_thread(coroutine: Any, loop: asyncio.AbstractEventLoop, main_loop: asyncio.AbstractEventLoop) -> Any:
-    if inspect.isawaitable(coroutine):
-        if loop.is_running():
-
-            async def coro_wrapper() -> asyncio.Future:
-                return await asyncio.wrap_future(asyncio.run_coroutine_threadsafe(coroutine, main_loop))
-
-            return coro_wrapper()
-        else:
-            return asyncio.run_coroutine_threadsafe(coroutine, main_loop).result()
-
-    if inspect.isasyncgen(coroutine):
-        if loop.is_running():
-            return coroutine
-        else:
-            return iter_over_async(coroutine, lambda coro: asyncio.run_coroutine_threadsafe(coro, main_loop).result())
-
-
 def async_to_sync_wraps(function: Callable, is_property: bool = False) -> Callable:
-    main_loop = get_event_loop()
-
     @functools.wraps(function)
     def async_to_sync_wrap(*args: Any, **kwargs: Any) -> Any:
         loop = get_event_loop()
@@ -62,17 +41,14 @@ def async_to_sync_wraps(function: Callable, is_property: bool = False) -> Callab
         else:
             coroutine = function(*args, **kwargs)
 
-        if threading.current_thread() is threading.main_thread():
-            if loop.is_running():
-                return coroutine
-            else:
-                try:
-                    return run_sync_ctx(coroutine, loop)
-                finally:
-                    shutdown_tasks(loop)
-                    loop.run_until_complete(loop.shutdown_asyncgens())
+        if loop.is_running():
+            return coroutine
         else:
-            return run_from_another_thread(coroutine, loop, main_loop)
+            try:
+                return run_sync_ctx(coroutine, loop)
+            finally:
+                shutdown_tasks(loop)
+                loop.run_until_complete(loop.shutdown_asyncgens())
 
     result = async_to_sync_wrap
     if is_property:

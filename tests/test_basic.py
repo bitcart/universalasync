@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from universalasync.utils import get_event_loop
+from universalasync import get_event_loop
 from universalasync.wrapper import shutdown_tasks
 
 
