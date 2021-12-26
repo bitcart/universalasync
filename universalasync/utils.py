@@ -1,8 +1,5 @@
 import asyncio
-import sys
 import threading
-
-PY_39 = sys.version_info >= (3, 9)
 
 
 def _get_event_loop() -> asyncio.AbstractEventLoop:

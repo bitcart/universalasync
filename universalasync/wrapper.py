@@ -1,10 +1,11 @@
 import asyncio
 import functools
 import inspect
+import sys
 import types
 from typing import Any, AsyncGenerator, Callable, Generator, Tuple, Union, cast
 
-from .utils import PY_39, get_event_loop
+from .utils import get_event_loop
 
 
 def iter_over_async(ait: AsyncGenerator, run_func: Callable) -> Generator:
@@ -50,7 +51,7 @@ def async_to_sync_wraps(function: Callable, is_property: bool = False) -> Union[
             finally:
                 shutdown_tasks(loop)
                 loop.run_until_complete(loop.shutdown_asyncgens())
-                if PY_39:
+                if sys.version_info >= (3, 9):
                     loop.run_until_complete(loop.shutdown_default_executor())
 
     result: Union[Callable, property] = async_to_sync_wrap
