@@ -1,3 +1,4 @@
+import asyncio
 import multiprocessing
 import os
 import signal
@@ -8,7 +9,7 @@ from threading import Thread
 import pytest
 
 from tests.utils import SampleClass
-from universalasync import get_event_loop, idle
+from universalasync import idle
 
 MAXSECONDS = 5
 
@@ -31,7 +32,7 @@ def sync_sync(client, called):
 # multi threaded
 # synchronous main thread + asynchronous thread style
 def sync_async(client, called):
-    t = Thread(target=run, args=(async_work(client, called),), daemon=True)
+    t = Thread(target=asyncio.run, args=(async_work(client, called),), daemon=True)
     t.start()
     idle()
     t.join()
@@ -55,18 +56,10 @@ async def async_sync(client, called):
 # multi threaded
 # asynchronous main thread + asynchronous thread style
 async def async_async(client, called):
-    t = Thread(target=run, args=(async_work(client, called),), daemon=True)
+    t = Thread(target=asyncio.run, args=(async_work(client, called),), daemon=True)
     t.start()
     await idle()
     t.join()
-
-
-def run(coro):
-    loop = get_event_loop()
-    try:
-        loop.run_until_complete(coro)
-    finally:
-        loop.close()
 
 
 def sync_work(client, called):
@@ -97,7 +90,7 @@ def test_async_to_sync_usage(func):
         obj = SampleClass()
         result = globals()[func](obj, called)
         if func.startswith("async_"):
-            result = run(result)
+            result = asyncio.run(result)
 
     process = multiprocessing.Process(target=inner)
     process.start()

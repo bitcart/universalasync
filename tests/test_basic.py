@@ -1,8 +1,10 @@
 import asyncio
+import weakref
 
 import pytest
 
-from universalasync.utils import get_event_loop
+from tests.utils import SampleClass
+from universalasync import get_event_loop
 from universalasync.wrapper import shutdown_tasks
 
 
@@ -32,3 +34,15 @@ def test_proper_task_cancel(client):
     loop.run_until_complete(asyncio.sleep(1))
     shutdown_tasks(loop)
     assert task.cancelled()
+
+
+def test_proper_cleanup():
+    client = SampleClass()
+    client_ref = weakref.ref(client)
+
+    async def func(client):
+        await client.async_method()
+
+    asyncio.run(func(client))
+    del client
+    assert client_ref() is None

@@ -1,8 +1,22 @@
-from universalasync import wrap
+from universalasync import get_event_loop, wrap
+
+
+class SampleSession:
+    def __init__(self):
+        self.running = True
+
+    async def close(self):
+        self.running = False
+
+    def is_running(self):
+        return self.running
 
 
 @wrap
 class SampleClass:
+    def __init__(self):
+        self._session = SampleSession()
+
     def sync_method(self):
         return True
 
@@ -23,3 +37,14 @@ class SampleClass:
 
     async def async_interrupt(self):
         raise KeyboardInterrupt()
+
+    async def _close(self):
+        if self._session is not None:
+            await self._session.close()
+
+    def __del__(self):
+        loop = get_event_loop()
+        if loop.is_running():
+            loop.create_task(self._close())
+        else:
+            loop.run_until_complete(self._close())
