@@ -3,7 +3,7 @@ import functools
 import inspect
 import sys
 import types
-from typing import Any, AsyncGenerator, Callable, Generator, Tuple, Union, cast
+from typing import Any, AsyncGenerator, Callable, Generator, Tuple, cast
 
 from .utils import get_event_loop
 
@@ -33,7 +33,7 @@ def run_sync_ctx(coroutine: Any, loop: asyncio.AbstractEventLoop) -> Any:
         return iter_over_async(coroutine, lambda coro: loop.run_until_complete(coro))
 
 
-def async_to_sync_wraps(function: Callable) -> Union[Callable, property]:
+def async_to_sync_wraps(function: Callable) -> Callable:
     """Wrap an async method/property to universal method.
 
     This allows to run wrapped methods in both async and sync contexts transparently without any additional code
@@ -46,7 +46,7 @@ def async_to_sync_wraps(function: Callable) -> Union[Callable, property]:
         function (Callable): function/property to wrap
 
     Returns:
-        Union[Callable, property]: modified function
+        Callable: modified function
     """
     is_property = inspect.isdatadescriptor(function)
     if is_property:
@@ -68,9 +68,9 @@ def async_to_sync_wraps(function: Callable) -> Union[Callable, property]:
                 if sys.version_info >= (3, 9):  # pragma: no cover
                     loop.run_until_complete(loop.shutdown_default_executor())
 
-    result: Union[Callable, property] = async_to_sync_wrap
+    result = async_to_sync_wrap
     if is_property:
-        result = property(cast(Callable, result))
+        result = cast(Callable, property(cast(Callable, result)))
     return result
 
 
