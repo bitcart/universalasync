@@ -1,9 +1,10 @@
 import asyncio
 import functools
 import inspect
-from typing import Any, AsyncGenerator, Callable, Generator, Tuple
+import types
+from typing import Any, AsyncGenerator, Callable, Generator, Tuple, Union, cast
 
-from .utils import get_event_loop
+from .utils import PY_39, get_event_loop
 
 
 def iter_over_async(ait: AsyncGenerator, run_func: Callable) -> Generator:
@@ -31,13 +32,13 @@ def run_sync_ctx(coroutine: Any, loop: asyncio.AbstractEventLoop) -> Any:
         return iter_over_async(coroutine, lambda coro: loop.run_until_complete(coro))
 
 
-def async_to_sync_wraps(function: Callable, is_property: bool = False) -> Callable:
+def async_to_sync_wraps(function: Callable, is_property: bool = False) -> Union[Callable, property]:
     @functools.wraps(function)
     def async_to_sync_wrap(*args: Any, **kwargs: Any) -> Any:
         loop = get_event_loop()
 
         if is_property:
-            coroutine = function.__get__(*args, **kwargs)  # type: ignore
+            coroutine = cast(types.MethodDescriptorType, function).__get__(*args, **kwargs)
         else:
             coroutine = function(*args, **kwargs)
 
@@ -49,10 +50,12 @@ def async_to_sync_wraps(function: Callable, is_property: bool = False) -> Callab
             finally:
                 shutdown_tasks(loop)
                 loop.run_until_complete(loop.shutdown_asyncgens())
+                if PY_39:
+                    loop.run_until_complete(loop.shutdown_default_executor())
 
-    result = async_to_sync_wrap
+    result: Union[Callable, property] = async_to_sync_wrap
     if is_property:
-        result = property(result)  # type: ignore
+        result = property(cast(Callable, result))
     return result
 
 
