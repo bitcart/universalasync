@@ -33,15 +33,29 @@ def run_sync_ctx(coroutine: Any, loop: asyncio.AbstractEventLoop) -> Any:
         return iter_over_async(coroutine, lambda coro: loop.run_until_complete(coro))
 
 
-def async_to_sync_wraps(function: Callable, is_property: bool = False) -> Union[Callable, property]:
+def async_to_sync_wraps(function: Callable) -> Union[Callable, property]:
+    """Wrap an async method/property to universal method.
+
+    This allows to run wrapped methods in both async and sync contexts transparently without any additional code
+
+    When run from another thread, it runs coroutines in new thread's event loop
+
+    See :ref:`Example <example>` for full example
+
+    Args:
+        function (Callable): function/property to wrap
+
+    Returns:
+        Union[Callable, property]: modified function
+    """
+    is_property = inspect.isdatadescriptor(function)
+    if is_property:
+        function = cast(types.MethodDescriptorType, function).__get__
+
     @functools.wraps(function)
     def async_to_sync_wrap(*args: Any, **kwargs: Any) -> Any:
         loop = get_event_loop()
-
-        if is_property:
-            coroutine = cast(types.MethodDescriptorType, function).__get__(*args, **kwargs)
-        else:
-            coroutine = function(*args, **kwargs)
+        coroutine = function(*args, **kwargs)
 
         if loop.is_running():
             return coroutine
@@ -51,7 +65,7 @@ def async_to_sync_wraps(function: Callable, is_property: bool = False) -> Union[
             finally:
                 shutdown_tasks(loop)
                 loop.run_until_complete(loop.shutdown_asyncgens())
-                if sys.version_info >= (3, 9):
+                if sys.version_info >= (3, 9):  # pragma: no cover
                     loop.run_until_complete(loop.shutdown_default_executor())
 
     result: Union[Callable, property] = async_to_sync_wrap
@@ -69,19 +83,23 @@ def shutdown_tasks(loop: asyncio.AbstractEventLoop) -> None:
     loop.run_until_complete(asyncio.gather(*to_cancel, return_exceptions=True))
 
 
-def async_to_sync(obj: object, name: str, is_property: bool = False) -> None:
-    function = getattr(obj, name)
-
-    setattr(obj, name, async_to_sync_wraps(function, is_property=is_property))
-
-
 def wrap(source: object) -> object:
+    """Convert all public async methods/properties of an object to universal methods.
+
+    See :func:`async_to_sync_wraps` for more info
+
+    Args:
+        source (object): object to convert
+
+    Returns:
+        object: converted object. Note that parameter passed is being modified anyway
+    """
     for name in dir(source):
         method = getattr(source, name)
 
         if not name.startswith("_"):
-            is_property = inspect.isdatadescriptor(method)
-            if inspect.iscoroutinefunction(method) or inspect.isasyncgenfunction(method) or is_property:
-                async_to_sync(source, name, is_property=is_property)
+            if inspect.iscoroutinefunction(method) or inspect.isasyncgenfunction(method) or inspect.isdatadescriptor(method):
+                function = getattr(source, name)
+                setattr(source, name, async_to_sync_wraps(function))
 
     return source

@@ -3,11 +3,11 @@ import signal
 from typing import Any
 
 from .utils import get_event_loop
-from .wrapper import async_to_sync, async_to_sync_wraps, wrap
+from .wrapper import async_to_sync_wraps, wrap
 
 
 @async_to_sync_wraps
-async def idle() -> Any:
+async def idle() -> None:
     """Useful for making event loop idle in the main thread for other threads to work"""
     is_idling = True
 
@@ -23,4 +23,4 @@ async def idle() -> Any:
         await asyncio.sleep(1)
 
 
-__all__ = ["async_to_sync", "async_to_sync_wraps", "wrap", "get_event_loop", "idle"]
+__all__ = ["async_to_sync_wraps", "wrap", "get_event_loop", "idle"]
