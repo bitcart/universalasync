@@ -28,6 +28,8 @@ This means that you might need to adapt your code a bit in case you use some res
 
 You can see an example of how this could be solved [here](https://github.com/bitcartcc/bitcart-sdk/blob/4a425f80f62a0c90f8c5fa19ccb7e578590dcead/bitcart/providers/jsonrpcrequests.py#L51-L58)
 
+For API reference see [the docs](https://universalasync.bitcartcc.com)
+
 ## Installation
 
 `pip install universalasync`
