@@ -8,8 +8,8 @@ from typing import Any, AsyncGenerator, Callable, Generator, Tuple, cast
 from .utils import get_event_loop
 
 
-def iter_over_async(ait: AsyncGenerator, run_func: Callable) -> Generator:
-    ait = ait.__aiter__()
+def iter_over_async(agen: AsyncGenerator, run_func: Callable) -> Generator:
+    ait = agen.__aiter__()
 
     async def get_next() -> Tuple[bool, Any]:
         try:
