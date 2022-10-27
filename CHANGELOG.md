@@ -2,6 +2,10 @@
 
 ## Latest changes
 
+## 0.2.0.2
+
+Support python 3.11
+
 ## 0.2.0.1
 
 Fix type hints
