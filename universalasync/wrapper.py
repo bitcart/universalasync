@@ -102,4 +102,10 @@ def wrap(source: object) -> object:
                 function = getattr(source, name)
                 setattr(source, name, async_to_sync_wraps(function))
 
+        elif name == "__aenter__" and not hasattr(source, "__enter__"):
+            setattr(source, "__enter__", async_to_sync_wraps(method))
+
+        elif name == "__aexit__" and not hasattr(source, "__exit__"):
+            setattr(source, "__exit__", async_to_sync_wraps(method))
+
     return source
