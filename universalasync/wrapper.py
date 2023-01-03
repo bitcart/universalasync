@@ -1,7 +1,6 @@
 import asyncio
 import functools
 import inspect
-import sys
 import types
 from typing import Any, AsyncGenerator, Callable, Generator, Tuple, cast
 
@@ -60,27 +59,12 @@ def async_to_sync_wraps(function: Callable) -> Callable:
         if loop.is_running():
             return coroutine
         else:
-            try:
-                return run_sync_ctx(coroutine, loop)
-            finally:
-                shutdown_tasks(loop)
-                loop.run_until_complete(loop.shutdown_asyncgens())
-                if sys.version_info >= (3, 9):  # pragma: no cover
-                    loop.run_until_complete(loop.shutdown_default_executor())
+            return run_sync_ctx(coroutine, loop)
 
     result = async_to_sync_wrap
     if is_property:
         result = cast(Callable, property(cast(Callable, result)))
     return result
-
-
-def shutdown_tasks(loop: asyncio.AbstractEventLoop) -> None:
-    to_cancel = asyncio.all_tasks(loop)
-    if not to_cancel:
-        return
-    for task in to_cancel:
-        task.cancel()
-    loop.run_until_complete(asyncio.gather(*to_cancel, return_exceptions=True))
 
 
 def wrap(source: object) -> object:

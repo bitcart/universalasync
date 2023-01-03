@@ -1,13 +1,9 @@
 import asyncio
-import threading
 
 
 def _get_event_loop() -> asyncio.AbstractEventLoop:
     try:
-        # NOTE: do NOT remove those 2 lines. Otherwise everything just hangs because of incorrect loop being used
-        if threading.current_thread() is threading.main_thread():
-            return asyncio.get_event_loop_policy().get_event_loop()
-        return asyncio.get_running_loop()
+        return asyncio.get_event_loop_policy().get_event_loop()
     except RuntimeError:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)

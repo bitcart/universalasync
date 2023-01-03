@@ -5,6 +5,8 @@ from typing import Any
 from .utils import get_event_loop
 from .wrapper import async_to_sync_wraps, wrap
 
+asyncio.get_event_loop_policy()  # initialize default policy import-time to allow get_event_loop() to work even in finalizers
+
 
 @async_to_sync_wraps
 async def idle() -> None:
