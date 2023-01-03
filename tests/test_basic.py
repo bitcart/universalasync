@@ -34,3 +34,23 @@ def test_proper_cleanup():
     asyncio.run(func(client))
     del client
     assert client_ref() is None
+
+
+def sync_cm():
+    with SampleClass() as obj:
+        return obj
+
+
+async def async_cm():
+    async with SampleClass() as obj:
+        return obj
+
+
+def check_context_manager(obj):
+    assert isinstance(obj, SampleClass)
+    assert not obj._session.is_running()
+
+
+def test_context_manager():
+    check_context_manager(sync_cm())
+    check_context_manager(asyncio.run(async_cm()))
