@@ -72,7 +72,8 @@ jobs:
           name: run fast tests
           command: |
             make ci
-            codecov -e PYTHON
+
+      - bitcartcc/codecov
 
       - upload-results
 
