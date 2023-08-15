@@ -18,8 +18,8 @@ setup(
     long_description_content_type="text/markdown",
     author="MrNaif2018",
     author_email="chuff184@gmail.com",
-    url="https://github.com/bitcartcc/universalasync",
-    keywords=["async", "await", "bitcartcc", "universal", "sync", "asyncio", "asynctosync", "synctoasync"],
+    url="https://github.com/bitcart/universalasync",
+    keywords=["async", "await", "bitcart", "universal", "sync", "asyncio", "asynctosync", "synctoasync"],
     install_requires=[],
     package_data={"universalasync": ["py.typed"]},
     classifiers=[

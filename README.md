@@ -1,9 +1,9 @@
 # universalasync
 
-[![CircleCI](https://circleci.com/gh/bitcartcc/universalasync.svg?style=svg)](https://circleci.com/gh/bitcartcc/universalasync)
-[![Codecov](https://img.shields.io/codecov/c/github/bitcartcc/universalasync?style=flat-square)](https://codecov.io/gh/bitcartcc/universalasync)
+[![CircleCI](https://circleci.com/gh/bitcart/universalasync.svg?style=svg)](https://circleci.com/gh/bitcart/universalasync)
+[![Codecov](https://img.shields.io/codecov/c/github/bitcart/universalasync?style=flat-square)](https://codecov.io/gh/bitcart/universalasync)
 [![PyPI version](https://img.shields.io/pypi/v/universalasync.svg?style=flat-square)](https://pypi.python.org/pypi/universalasync/)
-[![Read the Docs](https://img.shields.io/readthedocs/universalasync?style=flat-square)](https://universalasync.bitcartcc.com)
+[![Read the Docs](https://img.shields.io/readthedocs/universalasync?style=flat-square)](https://universalasync.bitcart.ai)
 
 A library to help automate the creation of universal python libraries
 
@@ -26,9 +26,9 @@ Also note that when run from a different os thread, the library will create a ne
 
 This means that you might need to adapt your code a bit in case you use some resources bound to a certain event loop (like `aiohttp.ClientSession`).
 
-You can see an example of how this could be solved [here](https://github.com/bitcartcc/bitcart-sdk/blob/4a425f80f62a0c90f8c5fa19ccb7e578590dcead/bitcart/providers/jsonrpcrequests.py#L51-L58)
+You can see an example of how this could be solved [here](https://github.com/bitcart/bitcart-sdk/blob/4a425f80f62a0c90f8c5fa19ccb7e578590dcead/bitcart/providers/jsonrpcrequests.py#L51-L58)
 
-For API reference see [the docs](https://universalasync.bitcartcc.com)
+For API reference see [the docs](https://universalasync.bitcart.ai)
 
 ## Installation
 

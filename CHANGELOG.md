@@ -2,6 +2,10 @@
 
 ## Latest changes
 
+## 0.3.0.1
+
+Rename BitcartCC to Bitcart
+
 ## 0.3.0.0
 
 Fix errors on cleanup in Python 3.9+ when calling async methods

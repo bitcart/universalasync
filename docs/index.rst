@@ -35,7 +35,7 @@ Also note that when run from a different os thread, the library will create a ne
 
 This means that you might need to adapt your code a bit in case you use some resources bound to a certain event loop (like ``aiohttp.ClientSession``).
 
-You can see an example of how this could be solved `here <https://github.com/bitcartcc/bitcart-sdk/blob/4a425f80f62a0c90f8c5fa19ccb7e578590dcead/bitcart/providers/jsonrpcrequests.py#L51-L58>`_
+You can see an example of how this could be solved `here <https://github.com/bitcart/bitcart-sdk/blob/4a425f80f62a0c90f8c5fa19ccb7e578590dcead/bitcart/providers/jsonrpcrequests.py#L51-L58>`_
 
 Installation
 ============
