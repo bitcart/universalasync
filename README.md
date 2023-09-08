@@ -77,7 +77,7 @@ threading.Thread(target=asyncio.run, args=(async_call(),)).start()
 
 ## Copyright and License
 
-Copyright (C) 2021 MrNaif2018
+Copyright (C) 2023 MrNaif2018
 
 Universal async-sync wrapper initially based on [this implementation](https://github.com/pyrogram/pyrogram/blob/master/pyrogram/sync.py)
 
