@@ -2,6 +2,7 @@
 .coverage
 .idea/
 .mypy_cache/
+.prettiercache
 .vscode/
 __pycache__/
 backup/

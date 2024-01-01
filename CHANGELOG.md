@@ -2,6 +2,10 @@
 
 ## Latest changes
 
+## 0.3.1.0
+
+Improve reliability of utils `_get_event_loop()`
+
 ## 0.3.0.1
 
 Rename BitcartCC to Bitcart

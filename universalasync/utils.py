@@ -3,6 +3,9 @@ import asyncio
 
 def _get_event_loop() -> asyncio.AbstractEventLoop:
     try:
+        current_loop = asyncio._get_running_loop()
+        if current_loop is not None:
+            return current_loop
         return asyncio.get_event_loop_policy().get_event_loop()
     except RuntimeError:
         loop = asyncio.new_event_loop()
