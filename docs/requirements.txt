@@ -1,0 +1,6 @@
+commonmark
+mock
+pillow
+recommonmark
+sphinx
+sphinx-rtd-theme
