@@ -10,7 +10,7 @@ spec.loader.exec_module(version_module)
 
 setup(
     name="universalasync",
-    packages=find_packages(),
+    packages=find_packages(exclude=["tests", "tests.*"]),
     version=version_module.VERSION,
     license="MIT",
     description="A library to help automate the creation of universal python libraries",

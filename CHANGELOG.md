@@ -2,6 +2,10 @@
 
 ## Latest changes
 
+## 0.3.1.1
+
+Don't install a separate tests package, but include tests in source tarball
+
 ## 0.3.1.0
 
 Improve reliability of utils `_get_event_loop()`
