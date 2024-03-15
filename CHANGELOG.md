@@ -2,6 +2,10 @@
 
 ## Latest changes
 
+## 0.3.1.2
+
+Drop python 3.7 support
+
 ## 0.3.1.1
 
 Don't install a separate tests package, but include tests in source tarball
