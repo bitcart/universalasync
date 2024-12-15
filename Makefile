@@ -12,6 +12,6 @@ format:
 
 test:
 	pytest tests/ ${TEST_ARGS}
-	@coverage combine > /dev/null 2>&1
+	@coverage combine > /dev/null 2>&1 || true
 
 ci: checkformat lint test
