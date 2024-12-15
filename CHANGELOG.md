@@ -2,6 +2,14 @@
 
 ## Latest changes
 
+# 0.4.0.0
+
+Drop python 3.8 support
+
+Use ruff & uv as tooling
+
+Support up to python 3.13
+
 ## 0.3.1.2
 
 Drop python 3.7 support
