@@ -2,7 +2,8 @@ import asyncio
 import functools
 import inspect
 import types
-from typing import Any, AsyncGenerator, Callable, Generator, Tuple, cast
+from collections.abc import AsyncGenerator, Generator
+from typing import Any, Callable, cast
 
 from .utils import get_event_loop
 
@@ -10,7 +11,7 @@ from .utils import get_event_loop
 def iter_over_async(agen: AsyncGenerator, run_func: Callable) -> Generator:
     ait = agen.__aiter__()
 
-    async def get_next() -> Tuple[bool, Any]:
+    async def get_next() -> tuple[bool, Any]:
         try:
             obj = await ait.__anext__()
             return False, obj
@@ -63,7 +64,7 @@ def async_to_sync_wraps(function: Callable) -> Callable:
 
     result = async_to_sync_wrap
     if is_property:
-        result = cast(Callable, property(cast(Callable, result)))
+        result = cast(Callable, property(cast(Callable, result)))  # type: ignore
     return result
 
 
@@ -87,9 +88,9 @@ def wrap(source: object) -> object:
                 setattr(source, name, async_to_sync_wraps(function))
 
         elif name == "__aenter__" and not hasattr(source, "__enter__"):
-            setattr(source, "__enter__", async_to_sync_wraps(method))
+            source.__enter__ = async_to_sync_wraps(method)  # type: ignore
 
         elif name == "__aexit__" and not hasattr(source, "__exit__"):
-            setattr(source, "__exit__", async_to_sync_wraps(method))
+            source.__exit__ = async_to_sync_wraps(method)  # type: ignore
 
     return source

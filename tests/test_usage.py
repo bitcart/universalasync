@@ -72,6 +72,14 @@ async def async_work(client, called):
     called.value = await client.async_method() is True and isinstance(client.async_gen(), types.AsyncGeneratorType)
 
 
+def run_in_process(func, called):
+    obj = SampleClass()
+    result = globals()[func](obj, called)
+    if func.startswith("async_"):
+        result = asyncio.run(result)
+    return result
+
+
 @pytest.mark.parametrize(
     "func",
     [
@@ -86,13 +94,7 @@ async def async_work(client, called):
 def test_async_to_sync_usage(func):
     called = multiprocessing.Value("b", False)
 
-    def inner():
-        obj = SampleClass()
-        result = globals()[func](obj, called)
-        if func.startswith("async_"):
-            result = asyncio.run(result)
-
-    process = multiprocessing.Process(target=inner)
+    process = multiprocessing.Process(target=run_in_process, args=(func, called))
     process.start()
     total = 0
     while not called.value:

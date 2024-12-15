@@ -8,12 +8,13 @@ from universalasync import get_event_loop, idle
 MAXSECONDS = 1
 
 
-def test_get_event_loop():
-    def inner():
-        loop = get_event_loop()
-        assert isinstance(loop, asyncio.AbstractEventLoop)
+def check_in_thread():
+    loop = get_event_loop()
+    assert isinstance(loop, asyncio.AbstractEventLoop)
 
-    thread = threading.Thread(target=inner)
+
+def test_get_event_loop():
+    thread = threading.Thread(target=check_in_thread)
     thread.start()
     thread.join()
     loop = get_event_loop()
@@ -23,13 +24,14 @@ def test_get_event_loop():
     assert loop is not loop2
 
 
-def test_idle():
-    def inner(called):
-        idle()
-        called.value = True
+def idle_checker(called):
+    idle()
+    called.value = True
 
+
+def test_idle():
     called = multiprocessing.Value("b", False)
-    process = multiprocessing.Process(target=inner, args=(called,))
+    process = multiprocessing.Process(target=idle_checker, args=(called,))
     process.start()
     total = 0
     while not called.value:

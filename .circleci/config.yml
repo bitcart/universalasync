@@ -8,7 +8,7 @@ executors:
     parameters:
       v:
         type: string
-        default: "3.8"
+        default: "3.9"
 
     docker:
       - image: cimg/python:<< parameters.v >>
@@ -18,24 +18,29 @@ executors:
 
 commands:
   install_dependencies:
+    parameters:
+      cache_dir:
+        type: string
+        default: /home/circleci/.cache/uv
+
     steps:
       - restore_cache:
           keys:
-            - v1-dependencies-{{ .Branch }}-{{ checksum "~/.pyenv/version" }}-{{ checksum "setup.py" }}-{{ checksum "test-requirements.txt" }}
+            - v1-dependencies-{{ .Branch }}-{{ checksum "~/.pyenv/version" }}-{{ checksum "uv.lock" }}
 
       - run:
-          name: install library
+          name: Install library
           command: |
-            virtualenv ~/venv
-            echo ". ~/venv/bin/activate" >> $BASH_ENV
-            source $BASH_ENV
-            pip install .
-            pip install -U -r test-requirements.txt
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            mkdir -p "<<parameters.cache_dir>>" && \
+            uv sync --frozen --compile-bytecode --cache-dir <<parameters.cache_dir>>
+            uv cache prune --ci --cache-dir <<parameters.cache_dir>>
+            echo ". ~/repo/.venv/bin/activate" >> $BASH_ENV
 
       - save_cache:
           paths:
-            - ~/venv
-          key: v1-dependencies-{{ .Branch }}-{{ checksum "~/.pyenv/version" }}-{{ checksum "setup.py" }}-{{ checksum "test-requirements.txt" }}
+            - "<<parameters.cache_dir>>"
+          key: v1-dependencies-{{ .Branch }}-{{ checksum "~/.pyenv/version" }}-{{ checksum "uv.lock" }}
 
   upload-results:
     steps:
@@ -85,21 +90,11 @@ jobs:
       - checkout
 
       - run:
-          name: setup credentials
+          name: upload package
           command: |
-            echo -e "[pypi]" >> ~/.pypirc
-            echo -e "username = $PYPI_USER" >> ~/.pypirc
-            echo -e "password = $PYPI_PASS" >> ~/.pypirc
-
-      - run:
-          name: create env, build dist and upload
-          command: |
-            virtualenv ~/venv
-            . ~/venv/bin/activate
-            pip install -U wheel twine
-            python setup.py sdist
-            python setup.py bdist_wheel
-            twine upload dist/*
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            uv build
+            uv publish --token $PYPI_TOKEN
 
 workflows:
   version: 2
@@ -114,7 +109,6 @@ workflows:
           matrix:
             parameters:
               v:
-                - "3.8"
                 - "3.9"
                 - "3.10"
                 - "3.11"

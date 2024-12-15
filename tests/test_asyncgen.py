@@ -4,11 +4,11 @@ from universalasync import get_event_loop
 
 
 def test_asyncgen(client):
-    assert type(client.async_gen()) == GeneratorType
+    assert type(client.async_gen()) is GeneratorType
     assert list(client.async_gen()) == list(range(10))
 
     async def async_part():
-        assert type(client.async_gen()) == AsyncGeneratorType
+        assert type(client.async_gen()) is AsyncGeneratorType
         assert [i async for i in client.async_gen()] == list(range(10))
 
     loop = get_event_loop()

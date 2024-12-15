@@ -1,9 +1,62 @@
-[tool.black]
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "universalasync"
+dynamic = ["version"]
+description = "A library to help automate the creation of universal python libraries"
+readme = "README.md"
+license = "MIT"
+authors = [{ name = "MrNaif2018", email = "chuff184@gmail.com" }]
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Utilities",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+keywords = [
+    "async",
+    "await",
+    "bitcart",
+    "universal",
+    "sync",
+    "asyncio",
+    "asynctosync",
+    "synctoasync",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/bitcart/universalasync"
+Source = "https://github.com/bitcart/universalasync"
+Changelog = "https://github.com/bitcart/universalasync/blob/master/CHANGELOG.md"
+
+[dependency-groups]
+dev = ["pre-commit", "pytest", "pytest-cov", "ruff", "mypy"]
+
+[tool.uv]
+default-groups = ['dev']
+
+[tool.hatch.version]
+path = "universalasync/version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["universalasync"]
+
+[tool.ruff]
+target-version = "py39"
 line-length = 127
 
-[tool.isort]
-profile = "black"
-line_length = 127
+[tool.ruff.lint]
+extend-select = ["UP", "B"]
 
 [tool.mypy]
 warn_redundant_casts = true
@@ -17,15 +70,10 @@ strict_optional = true
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
-addopts = [
-    "--cov=universalasync",
-    "--cov-report",
-    "term-missing",
-]
+addopts = ["--cov=universalasync", "--cov-report", "term-missing"]
 filterwarnings = [
     "error::DeprecationWarning",
     "error::PendingDeprecationWarning",
-    "ignore:There is no current event loop:DeprecationWarning", # TODO: remove when https://github.com/python/cpython/issues/100160 is fixed
 ]
 
 [tool.coverage.run]
