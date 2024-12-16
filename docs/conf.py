@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "universalasync"
-copyright = "2021, MrNaif2018"
+copyright = "2021, MrNaif2018"  # noqa
 author = "MrNaif2018"
 
 # The full version, including alpha/beta/rc tags

@@ -59,8 +59,7 @@ def async_to_sync_wraps(function: Callable) -> Callable:
 
         if loop.is_running():
             return coroutine
-        else:
-            return run_sync_ctx(coroutine, loop)
+        return run_sync_ctx(coroutine, loop)
 
     result = async_to_sync_wrap
     if is_property:
