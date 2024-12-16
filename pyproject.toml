@@ -54,6 +54,10 @@ all = [{ include-group = 'dev' }, { include-group = 'docs' }]
 
 [tool.uv]
 default-groups = ["dev"]
+cache-keys = [
+    { file = "pyproject.toml" },
+    { file = "universalasync/version.py" },
+]
 
 [tool.hatch.version]
 path = "universalasync/version.py"

@@ -2,6 +2,10 @@
 
 ## Latest changes
 
+## 0.4.0.1
+
+Fix event loop closing in some cases
+
 # 0.4.0.0
 
 Drop python 3.8 support
