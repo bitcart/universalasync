@@ -42,9 +42,18 @@ Changelog = "https://github.com/bitcart/universalasync/blob/master/CHANGELOG.md"
 
 [dependency-groups]
 dev = ["pre-commit", "pytest", "pytest-cov", "ruff", "mypy"]
+docs = [
+    "commonmark",
+    "mock",
+    "pillow",
+    "recommonmark",
+    "sphinx",
+    "sphinx-rtd-theme",
+]
+all = [{ include-group = 'dev' }, { include-group = 'docs' }]
 
 [tool.uv]
-default-groups = ['dev']
+default-groups = ["dev"]
 
 [tool.hatch.version]
 path = "universalasync/version.py"
@@ -77,7 +86,7 @@ ignore = ["RET502", "RET503", "S104", "S507", "ASYNC110"]
 mccabe = { max-complexity = 12 }
 
 [tool.ruff.lint.per-file-ignores]
-'tests/*' = ["S"]
+"tests/*" = ["S"]
 
 [tool.mypy]
 warn_redundant_casts = true
