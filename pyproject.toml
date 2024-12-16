@@ -57,7 +57,7 @@ target-version = "py39"
 line-length = 127
 
 [tool.ruff.lint]
-extend-select = ["UP", "B"]
+extend-select = ["F", "E", "I", "UP", "YTT", "B", "T10", "C", "SIM", "RUF100"]
 
 [tool.mypy]
 warn_redundant_casts = true
