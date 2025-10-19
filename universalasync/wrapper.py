@@ -2,10 +2,10 @@ import asyncio
 import functools
 import inspect
 import types
-from collections.abc import AsyncGenerator, Generator
-from typing import Any, Callable, cast
+from collections.abc import AsyncGenerator, Callable, Generator
+from typing import Any, cast
 
-from .utils import get_event_loop
+from universalasync.utils import get_event_loop
 
 
 def iter_over_async(agen: AsyncGenerator, run_func: Callable) -> Generator:

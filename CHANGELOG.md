@@ -2,6 +2,12 @@
 
 ## Latest changes
 
+## 0.5.0.0
+
+Support python 3.14
+
+Drop python 3.9 support
+
 ## 0.4.0.1
 
 Fix event loop closing in some cases

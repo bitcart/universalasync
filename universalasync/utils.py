@@ -1,4 +1,9 @@
 import asyncio
+import sys
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from asyncio.events import _AbstractEventLoopPolicy
 
 
 def _create_new_event_loop() -> asyncio.AbstractEventLoop:
@@ -7,11 +12,17 @@ def _create_new_event_loop() -> asyncio.AbstractEventLoop:
     return loop
 
 
+def _get_event_loop_policy() -> "_AbstractEventLoopPolicy":
+    if sys.version_info >= (3, 14):
+        return asyncio.events._get_event_loop_policy()
+    return asyncio.get_event_loop_policy()
+
+
 def _get_event_loop() -> asyncio.AbstractEventLoop:
     current_loop = asyncio._get_running_loop()
     if current_loop is not None:
         return current_loop
-    policy = asyncio.get_event_loop_policy()
+    policy = _get_event_loop_policy()
     if policy._local._loop is not None:
         return policy._local._loop
     return _create_new_event_loop()

@@ -2,10 +2,11 @@ import asyncio
 import signal
 from typing import Any
 
-from .utils import get_event_loop
-from .wrapper import async_to_sync_wraps, wrap
+from universalasync.utils import _get_event_loop_policy, get_event_loop
+from universalasync.wrapper import async_to_sync_wraps, wrap
 
-asyncio.get_event_loop_policy()  # initialize default policy import-time to allow get_event_loop() to work even in finalizers
+# initialize default policy import-time to allow get_event_loop() to work even in finalizers
+_get_event_loop_policy()
 
 
 @async_to_sync_wraps
