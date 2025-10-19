@@ -102,6 +102,7 @@ def test_async_to_sync_usage(func):
         total += 0.1
         if total >= MAXSECONDS:
             break
-    os.kill(process.pid, signal.SIGINT)
+    if process.is_alive():
+        os.kill(process.pid, signal.SIGINT)
     process.join()
     assert called.value
