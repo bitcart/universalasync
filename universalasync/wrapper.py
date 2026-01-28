@@ -3,7 +3,7 @@ import functools
 import inspect
 import types
 from collections.abc import AsyncGenerator, Callable, Generator
-from typing import Any, cast, TypeVar
+from typing import Any, TypeVar, cast
 
 from universalasync.utils import get_event_loop
 
