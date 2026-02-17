@@ -2,6 +2,18 @@
 
 ## Latest changes
 
+## 0.5.1.0
+
+Switch to github actions
+
+We now upload packages via Trusted Publishing with PEP740 attestations
+
+Overall tooling modernization
+
+New documentation rewritten to mkdocs
+
+Function `wrap` renamed to `async_to_sync` for clarity. Old name will remain an alias until 0.6.0.0.
+
 ## 0.5.0.0
 
 Support python 3.14

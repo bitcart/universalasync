@@ -40,7 +40,7 @@ def async_to_sync_wraps(function: Callable) -> Callable:
 
     When run from another thread, it runs coroutines in new thread's event loop
 
-    See :ref:`Example <example>` for full example
+    See [Example](index.md#example-of-usage) for full example
 
     Args:
         function (Callable): function/property to wrap
@@ -70,10 +70,10 @@ def async_to_sync_wraps(function: Callable) -> Callable:
 T = TypeVar("T")
 
 
-def wrap(source: T) -> T:
+def async_to_sync(source: T) -> T:
     """Convert all public async methods/properties of an object to universal methods.
 
-    See :func:`async_to_sync_wraps` for more info
+    See [`async_to_sync_wraps`][universalasync.wrapper.async_to_sync_wraps] for more info
 
     Args:
         source (object): object to convert
@@ -96,3 +96,6 @@ def wrap(source: T) -> T:
             source.__exit__ = async_to_sync_wraps(method)  # type: ignore
 
     return source
+
+
+wrap = async_to_sync

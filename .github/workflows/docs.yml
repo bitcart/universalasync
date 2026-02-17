@@ -1,0 +1,48 @@
+name: Docs
+
+on:
+  push:
+    branches:
+      - master
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  docs:
+    name: docs
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: bitcart/bitcart-actions/actions/setup-python@master
+
+      - name: Install dependencies
+        run: |
+          uv sync --frozen --compile-bytecode --group docs
+
+      - name: Build docs
+        run: |
+          just docs
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

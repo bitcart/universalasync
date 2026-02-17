@@ -1,16 +1,16 @@
 version: 2
 
 build:
-  os: ubuntu-22.04
+  os: ubuntu-lts-latest
   tools:
-    python: "3.11"
+    python: "3.12"
   jobs:
     post_create_environment:
       - pip install uv
     post_install:
       - UV_PROJECT_ENVIRONMENT=$READTHEDOCS_VIRTUALENV_PATH uv sync --group docs --frozen
 
-sphinx:
-  configuration: docs/conf.py
+mkdocs:
+  configuration: mkdocs.yml
 
-formats: all
+formats: []

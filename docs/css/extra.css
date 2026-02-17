@@ -1,0 +1,12 @@
+[data-md-color-scheme="default"] {
+    --md-typeset-a-color: #673ab7;
+    --md-footer-bg-color: white;
+    --md-footer-bg-color--dark: white;
+    --md-footer-fg-color: #333;
+    --md-footer-fg-color--light: #666;
+    --md-footer-fg-color--lighter: #999;
+}
+
+.md-footer a {
+    color: #673ab7;
+}

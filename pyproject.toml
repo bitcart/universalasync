@@ -8,6 +8,7 @@ dynamic = ["version"]
 description = "A library to help automate the creation of universal python libraries"
 readme = "README.md"
 license = "MIT"
+license-files = ["LICENSE"]
 authors = [{ name = "MrNaif2018", email = "chuff184@gmail.com" }]
 requires-python = ">=3.10"
 classifiers = [
@@ -15,7 +16,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "Topic :: Software Development :: Libraries",
     "Topic :: Utilities",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -41,29 +41,27 @@ Source = "https://github.com/bitcart/universalasync"
 Changelog = "https://github.com/bitcart/universalasync/blob/master/CHANGELOG.md"
 
 [dependency-groups]
-dev = ["pre-commit", "pytest", "pytest-cov", "ruff", "mypy"]
-docs = [
-    "commonmark",
-    "mock",
-    "pillow",
-    "recommonmark",
-    "sphinx",
-    "sphinx-rtd-theme",
+lint = ["mypy", "prek", "ruff"]
+test = ["pytest", "pytest-cov", "pytest-durations"]
+docs = ["mkdocs", "mkdocs-material", "mkdocstrings[python]"]
+dev = [
+    "rust-just>=1.46.0",
+    { include-group = "lint" },
+    { include-group = "test" },
 ]
-all = [{ include-group = 'dev' }, { include-group = 'docs' }]
+all = [{ include-group = "dev" }, { include-group = "docs" }]
 
 [tool.uv]
-default-groups = ["dev"]
 cache-keys = [
     { file = "pyproject.toml" },
     { file = "universalasync/version.py" },
 ]
 
-[tool.hatch.version]
-path = "universalasync/version.py"
-
 [tool.hatch.build.targets.wheel]
 packages = ["universalasync"]
+
+[tool.hatch.version]
+path = "universalasync/version.py"
 
 [tool.ruff]
 target-version = "py310"
@@ -105,6 +103,8 @@ ignore_missing_imports = true
 exclude = ["tests"]
 
 [tool.pytest.ini_options]
+junit_duration_report = "call"
+junit_suite_name = "universalasync_test_suite"
 addopts = ["--cov=universalasync", "--cov-report", "term-missing"]
 filterwarnings = [
     "error::DeprecationWarning",

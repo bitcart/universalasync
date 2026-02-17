@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow_ref }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: lint
+    uses: bitcart/bitcart-actions/.github/workflows/lint.yml@master
+    with:
+      install-dependencies: |
+        uv sync --frozen --compile-bytecode
+
+  zizmor:
+    name: zizmor
+    uses: bitcart/bitcart-actions/.github/workflows/zizmor-audit.yml@master
+    permissions:
+      contents: read
+      security-events: write
+
+  test:
+    name: test-${{ matrix.python-version }}
+    needs: [lint, zizmor]
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+
+    env:
+      TEST_ARGS: "-o junit_family=legacy --junitxml test-results/junit.xml --cov-report html:coverage"
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: bitcart/bitcart-actions/actions/setup-python@master
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install library
+        run: |
+          uv sync --frozen --compile-bytecode
+
+      - name: Run tests
+        run: |
+          just ci
+
+      - name: Upload coverage to Codecov
+        uses: bitcart/bitcart-actions/actions/codecov@master
+        if: ${{ !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          name: Tests - Python ${{ env.PYTHON }}
+          flags: tests
+          env_vars: PYTHON
+          upload_coverage: ${{ job.status == 'success' }}
+
+      - name: Upload test results
+        uses: bitcart/bitcart-actions/actions/upload-test-results@master
+        if: ${{ !cancelled() }}
+        with:
+          suffix: py${{ env.PYTHON }}
+
+  combine-coverage:
+    name: combine-coverage
+    uses: bitcart/bitcart-actions/.github/workflows/combine-coverage.yml@master
+    needs: test
+    if: ${{ !cancelled() }}
