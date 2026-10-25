@@ -58,33 +58,34 @@ For API reference see [the docs](https://universalasync.bitcart.ai)
 # wrap needed methods one by one
 class Client:
     @async_to_sync_wraps
-    async def help():
-        ...
+    async def help(): ...
 
     @async_to_sync_wraps
     @property
-    async def async_property():
-        ...
+    async def async_property(): ...
+
 
 # or wrap whole classes
 @wrap
 class Client:
-    async def help(self):
-        ...
+    async def help(self): ...
 
     @property
-    async def async_property():
-        ...
+    async def async_property(): ...
+
 
 client = Client()
+
 
 def sync_call():
     client.help()
     client.async_property
 
+
 async def async_call():
     await client.help()
     await client.async_property
+
 
 # works in all cases
 sync_call()
