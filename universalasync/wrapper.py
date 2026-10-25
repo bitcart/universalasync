@@ -8,7 +8,7 @@ from typing import Any, TypeVar, cast
 from universalasync.utils import get_event_loop
 
 
-def iter_over_async(agen: AsyncGenerator, run_func: Callable) -> Generator:
+def iter_over_async(agen: AsyncGenerator[Any, Any], run_func: Callable) -> Generator:
     ait = agen.__aiter__()
 
     async def get_next() -> tuple[bool, Any]:
