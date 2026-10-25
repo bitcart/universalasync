@@ -24,9 +24,27 @@ There should be no issues at all, the only limitation is that signals and async 
 
 Also note that when run from a different os thread, the library will create a new event loop there and run coroutines.
 
-This means that you might need to adapt your code a bit in case you use some resources bound to a certain event loop (like `aiohttp.ClientSession`).
+This means that resources bound to a certain event loop (like `aiohttp.ClientSession`) need one instance per event loop.
 
-You can see an example of how this could be solved [here](https://github.com/bitcart/bitcart-sdk/blob/4a425f80f62a0c90f8c5fa19ccb7e578590dcead/bitcart/providers/jsonrpcrequests.py#L51-L58)
+`LoopLocal` keeps one value per event loop, and closes each of them on the loop that owns it: when you call `close()`, or when it is garbage collected.
+
+```python
+import aiohttp
+from universalasync import LoopLocal, wrap
+
+
+@wrap
+class Client:
+    def __init__(self):
+        self._sessions = LoopLocal(aiohttp.ClientSession.close)
+
+    async def help(self):
+        async with self._sessions.get(aiohttp.ClientSession).get("https://example.com") as response:
+            return await response.text()
+
+    def close(self):  # await it in async code
+        return self._sessions.close()
+```
 
 For API reference see [the docs](https://universalasync.bitcart.ai)
 

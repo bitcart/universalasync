@@ -2,6 +2,7 @@ import asyncio
 import signal
 from typing import Any
 
+from universalasync.loop_local import LoopLocal
 from universalasync.utils import _get_event_loop_policy, get_event_loop
 from universalasync.wrapper import async_to_sync, async_to_sync_wraps, wrap
 
@@ -26,4 +27,4 @@ async def idle() -> None:
         await asyncio.sleep(1)
 
 
-__all__ = ["async_to_sync", "async_to_sync_wraps", "wrap", "get_event_loop", "idle"]
+__all__ = ["async_to_sync", "async_to_sync_wraps", "wrap", "get_event_loop", "idle", "LoopLocal"]

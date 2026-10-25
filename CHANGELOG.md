@@ -2,6 +2,10 @@
 
 ## Latest changes
 
+## 0.5.2.0
+
+New `LoopLocal` helper: keeps one value per event loop (like an `aiohttp.ClientSession`) and closes each value on the loop that owns it
+
 ## 0.5.1.0
 
 Switch to github actions
