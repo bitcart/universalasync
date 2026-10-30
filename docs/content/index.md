@@ -62,14 +62,20 @@ pip install universalasync
 ## Example of usage
 
 ```python
+import asyncio
+import threading
+
+from universalasync import async_to_sync_wraps, wrap
+
+
 # wrap needed methods one by one
 class Client:
     @async_to_sync_wraps
-    async def help(): ...
+    async def help(self): ...
 
     @async_to_sync_wraps
     @property
-    async def async_property(): ...
+    async def async_property(self): ...
 
 
 # or wrap whole classes
@@ -78,7 +84,7 @@ class Client:
     async def help(self): ...
 
     @property
-    async def async_property(): ...
+    async def async_property(self): ...
 
 
 client = Client()
@@ -100,3 +106,6 @@ asyncio.run(async_call())
 threading.Thread(target=sync_call).start()
 threading.Thread(target=asyncio.run, args=(async_call(),)).start()
 ```
+
+The mode is chosen when a wrapped method is called: outside a running event loop it runs to completion and returns the result.
+So `asyncio.run(client.help())` doesn't work, as `client.help()` has already run before `asyncio.run` starts a loop. Await it inside a coroutine instead, like `async_call` above.

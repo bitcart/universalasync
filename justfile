@@ -26,13 +26,18 @@ lint-types:
 test *args:
     pytest {{ trim(test-args + " " + args) }}
 
+# run benchmarks
+[group("Testing")]
+bench *args:
+    pytest benchmarks --no-cov -p no:pytest-durations {{ args }}
+
 # run ci checks (without tests)
 [group("CI")]
 ci-lint: lint-check lint-types
 
 # run ci checks
 [group("CI")]
-ci *args: ci-lint (test args)
+ci *args: ci-lint (test args) (bench "--benchmark-disable")
 
 # docs
 

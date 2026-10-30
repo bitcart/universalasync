@@ -42,7 +42,8 @@ Changelog = "https://github.com/bitcart/universalasync/blob/master/CHANGELOG.md"
 
 [dependency-groups]
 lint = ["deptry", "mypy", "prek", "ruff"]
-test = ["pytest", "pytest-cov", "pytest-durations"]
+# TODO: unpin pytest once pytest-benchmark releases https://github.com/ionelmc/pytest-benchmark/pull/323
+test = ["pytest<9.2", "pytest-benchmark", "pytest-cov", "pytest-durations"]
 docs = ["zensical", "mkdocstrings-python"]
 dev = ["rust-just>=1.46.0", { include-group = "lint" }, { include-group = "test" }]
 all = [{ include-group = "dev" }, { include-group = "docs" }]
@@ -81,6 +82,7 @@ ignore_missing_imports = true
 exclude = ["tests"]
 
 [tool.pytest.ini_options]
+testpaths = ["tests"]
 junit_duration_report = "call"
 junit_suite_name = "universalasync_test_suite"
 addopts = ["--cov=universalasync", "--cov-report", "term-missing"]
