@@ -26,7 +26,7 @@ jobs:
     uses: bitcart/bitcart-actions/.github/workflows/zizmor-audit.yml@master
     permissions:
       contents: read
-      security-events: write
+      security-events: write # needed for github advanced security
 
   test:
     name: test-${{ matrix.python-version }}
@@ -41,7 +41,7 @@ jobs:
       TEST_ARGS: "-o junit_family=legacy --junitxml test-results/junit.xml --cov-report html:coverage"
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 

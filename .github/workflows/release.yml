@@ -4,6 +4,10 @@ on:
   release:
     types: [created]
 
+concurrency:
+  group: ${{ github.workflow_ref }}-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+
 permissions:
   contents: read
 
@@ -16,10 +20,10 @@ jobs:
       url: https://pypi.org/p/universalasync
     permissions:
       contents: read
-      id-token: write
+      id-token: write # OIDC token for pypi trusted publishing
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -35,4 +39,4 @@ jobs:
         run: uv build
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
