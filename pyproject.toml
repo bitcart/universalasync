@@ -41,21 +41,14 @@ Source = "https://github.com/bitcart/universalasync"
 Changelog = "https://github.com/bitcart/universalasync/blob/master/CHANGELOG.md"
 
 [dependency-groups]
-lint = ["mypy", "prek", "ruff"]
+lint = ["deptry", "mypy", "prek", "ruff"]
 test = ["pytest", "pytest-cov", "pytest-durations"]
-docs = ["mkdocs", "mkdocs-material", "mkdocstrings[python]"]
-dev = [
-    "rust-just>=1.46.0",
-    { include-group = "lint" },
-    { include-group = "test" },
-]
+docs = ["zensical", "mkdocstrings-python"]
+dev = ["rust-just>=1.46.0", { include-group = "lint" }, { include-group = "test" }]
 all = [{ include-group = "dev" }, { include-group = "docs" }]
 
 [tool.uv]
-cache-keys = [
-    { file = "pyproject.toml" },
-    { file = "universalasync/version.py" },
-]
+cache-keys = [{ file = "pyproject.toml" }, { file = "universalasync/version.py" }]
 
 [tool.hatch.build.targets.wheel]
 packages = ["universalasync"]
@@ -68,22 +61,7 @@ target-version = "py310"
 line-length = 127
 
 [tool.ruff.lint]
-select = [
-    "F",
-    "E",
-    "I",
-    "UP",
-    "YTT",
-    "B",
-    "T10",
-    "C",
-    "SIM",
-    "RUF100",
-    "RET",
-    "A",
-    "S",
-    "ASYNC",
-]
+select = ["F", "E", "I", "UP", "YTT", "B", "T10", "C", "SIM", "RUF100", "RET", "A", "S", "ASYNC"]
 ignore = ["RET502", "RET503", "S104", "S507", "ASYNC110"]
 mccabe = { max-complexity = 12 }
 
@@ -106,17 +84,7 @@ exclude = ["tests"]
 junit_duration_report = "call"
 junit_suite_name = "universalasync_test_suite"
 addopts = ["--cov=universalasync", "--cov-report", "term-missing"]
-filterwarnings = [
-    "error::DeprecationWarning",
-    "error::PendingDeprecationWarning",
-]
+filterwarnings = ["error::DeprecationWarning", "error::PendingDeprecationWarning"]
 
 [tool.coverage.run]
-omit = [
-    "*__init__.py",
-    "tests/*",
-    "venv/*",
-    "env/*",
-    "universalasync/version.py",
-    "setup.py",
-]
+omit = ["*__init__.py", "tests/*", "venv/*", "env/*", "universalasync/version.py", "setup.py"]

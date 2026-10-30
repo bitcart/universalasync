@@ -3,7 +3,7 @@
 [![CI](https://github.com/bitcart/universalasync/actions/workflows/ci.yml/badge.svg)](https://github.com/bitcart/universalasync/actions/workflows/ci.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/bitcart/universalasync?style=flat-square)](https://codecov.io/gh/bitcart/universalasync)
 [![PyPI version](https://img.shields.io/pypi/v/universalasync.svg?style=flat-square)](https://pypi.python.org/pypi/universalasync/)
-[![Read the Docs](https://img.shields.io/readthedocs/universalasync?style=flat-square)](https://universalasync.bitcart.ai)
+[![Docs](https://github.com/bitcart/universalasync/actions/workflows/docs.yml/badge.svg)](https://universalasync.bitcart.ai)
 
 A library to help automate the creation of universal python libraries
 

@@ -39,14 +39,14 @@ ci *args: ci-lint (test args)
 # build documentation
 [group("Documentation")]
 docs:
-    mkdocs build
+    zensical build
 
 # serve documentation
 [group("Documentation")]
 docs-serve:
-    mkdocs serve
+    zensical serve
 
 # develop documentation with live reload
 [group("Documentation")]
 docs-dev:
-    mkdocs serve --livereload
+    zensical serve

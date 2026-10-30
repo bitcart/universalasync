@@ -6,8 +6,6 @@ repo_name: bitcart/universalasync
 site_dir: site
 watch: [docs, mkdocs.yml, universalasync]
 copyright: "Copyright &copy; 2021 MrNaif2018"
-hooks:
-  - docs/hooks.py
 
 docs_dir: docs/content
 
@@ -106,9 +104,6 @@ markdown_extensions:
   - pymdownx.tasklist
   - toc:
       permalink: true
-
-extra_css:
-  - css/extra.css
 
 extra:
   social:
