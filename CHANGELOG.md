@@ -2,6 +2,12 @@
 
 ## Latest changes
 
+## 0.5.2.1
+
+Fix wrapped functions hanging in processes forked by `multiprocessing` on python 3.10 and 3.11: forked processes now get their own event loop, like python 3.12+ does
+
+Fix the usage example in README and add overhead benchmarks, docs switched to zensical
+
 ## 0.5.2.0
 
 New `LoopLocal` helper: keeps one value per event loop (like an `aiohttp.ClientSession`) and closes each value on the loop that owns it
