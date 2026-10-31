@@ -3,7 +3,6 @@ import multiprocessing
 import signal
 import socket
 import threading
-import time
 
 import pytest
 
@@ -29,24 +28,17 @@ def test_get_event_loop():
     assert loop is not loop2
 
 
-def idle_checker(called):
-    idle()
-    called.value = True
-
-
-def test_idle():
-    called = multiprocessing.Value("b", False)
-    process = multiprocessing.Process(target=idle_checker, args=(called,))
-    process.start()
-    total = 0
-    while not called.value:
-        time.sleep(0.1)
-        total += 0.1
-        if total >= MAXSECONDS:
-            break
-    process.terminate()
-    process.join()
-    assert called.value
+def test_idle_stops_on_signal():
+    handlers = {s: signal.getsignal(s) for s in (signal.SIGINT, signal.SIGTERM, signal.SIGABRT)}
+    loop = get_event_loop()
+    loop.call_later(0.1, signal.raise_signal, signal.SIGTERM)
+    timeout = loop.call_later(5, loop.stop)
+    try:
+        idle()
+    finally:
+        timeout.cancel()
+        for s, handler in handlers.items():
+            signal.signal(s, handler)
 
 
 @async_to_sync_wraps

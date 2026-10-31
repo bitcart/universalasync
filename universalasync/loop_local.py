@@ -1,9 +1,10 @@
 import asyncio
 import concurrent.futures
+import contextlib
 import functools
 import threading
 import weakref
-from collections.abc import Awaitable, Callable, Coroutine
+from collections.abc import Awaitable, Callable, Coroutine, Iterator
 from typing import Any, Generic, TypeVar
 
 from universalasync.utils import get_event_loop
@@ -43,12 +44,17 @@ class LoopLocal(Generic[T]):
             T: value bound to the current event loop
         """
         loop = get_event_loop()
-        if loop not in self._values:
-            closed = {owner: self._values.pop(owner) for owner in list(self._values) if owner.is_closed()}
-            for error in _close_values(closed, self._close):
-                _report_close_error(loop, error)
-            self._values[loop] = create()
-        return self._values[loop]
+        with contextlib.suppress(KeyError):
+            return self._values[loop]
+        closed = {}
+        for owner in list(self._values):
+            if owner.is_closed():
+                with contextlib.suppress(KeyError):
+                    closed[owner] = self._values.pop(owner)
+        for error in _close_values(closed, self._close):
+            _report_close_error(loop, error)
+        value = self._values[loop] = create()
+        return value
 
     def close(self) -> Any:
         """Close all values, each on the event loop that owns it"""
@@ -60,8 +66,7 @@ class LoopLocal(Generic[T]):
     async def _close_async(self) -> None:
         running_loop = asyncio.get_running_loop()
         awaitables: list[Awaitable[Any]] = []
-        while self._values:
-            loop, value = self._values.popitem()
+        for loop, value in _pop_all(self._values):
             coroutine = self._close(value)
             if loop is running_loop or loop.is_closed():
                 awaitables.append(coroutine)
@@ -81,12 +86,19 @@ class LoopLocal(Generic[T]):
             raise errors[0]
 
 
+def _pop_all(values: dict[asyncio.AbstractEventLoop, T]) -> Iterator[tuple[asyncio.AbstractEventLoop, T]]:
+    while True:
+        try:
+            yield values.popitem()
+        except KeyError:
+            return
+
+
 def _close_values(
     values: dict[asyncio.AbstractEventLoop, T], close: Callable[[T], Coroutine[Any, Any, Any]]
 ) -> list[Exception]:
     errors: list[Exception] = []
-    while values:
-        loop, value = values.popitem()
+    for loop, value in _pop_all(values):
         try:
             _close_on(loop, close(value))
         except Exception as e:

@@ -374,3 +374,73 @@ def test_close_errors_on_loop_running_in_other_thread_are_reported(loops):
         holder.close()
         asyncio.run_coroutine_threadsafe(wait_until(lambda: errors), loops[0]).result(timeout=5)
     assert isinstance(errors[0], ValueError)
+
+
+def run_in_threads(target, count=16):
+    barrier = threading.Barrier(count, timeout=5)
+    errors = []
+
+    def run():
+        try:
+            target(barrier)
+        except Exception as e:
+            errors.append(e)
+            barrier.abort()
+
+    threads = [threading.Thread(target=run) for _ in range(count)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    assert errors == []
+
+
+def test_concurrent_gets_close_each_stale_value_once():
+    created = []
+    closed = []
+
+    async def close(value):
+        closed.append(value)
+
+    def create():
+        value = object()
+        created.append(value)
+        return value
+
+    holder = LoopLocal(close)
+
+    def use(barrier):
+        for _ in range(100):
+            holder.get(create)
+            get_event_loop().close()
+            barrier.wait()
+            holder.get(create)
+        get_event_loop().close()
+
+    run_in_threads(use)
+    holder.close()
+    assert len(closed) == len({id(value) for value in closed}) == len(created)
+
+
+def test_concurrent_closes_close_each_value_once():
+    closed = []
+
+    async def close(value):
+        closed.append(value)
+
+    holder = LoopLocal(close)
+
+    def close_all(barrier):
+        barrier.wait()
+        holder.close()
+
+    loops = [asyncio.new_event_loop() for _ in range(32)]
+    try:
+        for _ in range(20):
+            closed.clear()
+            values = [loop.run_until_complete(get_resource(holder)) for loop in loops]
+            run_in_threads(close_all)
+            assert sorted(map(id, closed)) == sorted(map(id, values))
+    finally:
+        for loop in loops:
+            loop.close()

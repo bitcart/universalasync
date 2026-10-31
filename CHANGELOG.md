@@ -2,9 +2,11 @@
 
 ## Latest changes
 
-## 0.6.0.1
+## 0.6.1.0
 
 Slimmer sdist package
+
+Support free-threaded Python
 
 ## 0.6.0.0
 
