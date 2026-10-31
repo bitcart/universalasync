@@ -1,11 +1,14 @@
 import asyncio
 import multiprocessing
+import signal
+import socket
 import threading
 import time
 
 import pytest
 
 from universalasync import async_to_sync_wraps, get_event_loop, idle
+from universalasync.utils import _reset_event_loop_after_fork
 
 MAXSECONDS = 1
 
@@ -65,3 +68,19 @@ def test_forked_child_gets_new_event_loop():
     process.kill()
     process.join()
     assert result.value
+
+
+def test_reset_event_loop_after_fork():
+    loop = get_event_loop()
+    reader, writer = socket.socketpair()
+    writer.setblocking(False)
+    signal.set_wakeup_fd(writer.fileno())
+    try:
+        _reset_event_loop_after_fork()
+        assert signal.set_wakeup_fd(-1) == -1
+        assert get_event_loop() is not loop
+    finally:
+        signal.set_wakeup_fd(-1)
+        reader.close()
+        writer.close()
+        loop.close()
