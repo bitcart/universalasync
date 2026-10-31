@@ -2,6 +2,12 @@
 
 ## Latest changes
 
+## 0.6.0.0
+
+Support python 3.15
+
+Drop python 3.10 support
+
 ## 0.5.2.1
 
 Fix wrapped functions hanging in processes forked by `multiprocessing` on python 3.10 and 3.11: forked processes now get their own event loop, like python 3.12+ does
