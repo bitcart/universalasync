@@ -51,6 +51,9 @@ all = [{ include-group = "dev" }, { include-group = "docs" }]
 [tool.uv]
 cache-keys = [{ file = "pyproject.toml" }, { file = "universalasync/version.py" }]
 
+[tool.hatch.build.targets.sdist]
+include = ["universalasync", "tests", "CHANGELOG.md"]
+
 [tool.hatch.build.targets.wheel]
 packages = ["universalasync"]
 

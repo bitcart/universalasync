@@ -2,6 +2,10 @@
 
 ## Latest changes
 
+## 0.6.0.1
+
+Slimmer sdist package
+
 ## 0.6.0.0
 
 Support python 3.15
