@@ -21,9 +21,10 @@ jobs:
       install-dependencies: |
         uv sync --frozen --compile-bytecode
 
-  zizmor:
-    name: zizmor
-    uses: bitcart/bitcart-actions/.github/workflows/zizmor-audit.yml@master
+  workflows:
+    name: workflows
+    uses: bitcart/bitcart-actions/.github/workflows/workflow-checks.yml@master
+
     permissions:
       contents: read
       security-events: write # needed for github advanced security
@@ -31,14 +32,13 @@ jobs:
   test:
     name: test
     uses: bitcart/bitcart-actions/.github/workflows/python-tests.yml@master
-    needs: [lint, zizmor]
+    needs: [lint, workflows]
+    with:
+      python-versions: '["3.11", "3.12", "3.13", "3.14", "3.14t", "3.15", "3.15t"]'
 
     permissions:
       contents: read
       id-token: write # OIDC token for codecov uploads
-
-    with:
-      python-versions: '["3.11", "3.12", "3.13", "3.14", "3.14t", "3.15", "3.15t"]'
 
   combine-coverage:
     name: combine-coverage

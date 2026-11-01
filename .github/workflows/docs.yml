@@ -19,6 +19,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     permissions:
       contents: read
       pages: write # to publish on github pages
