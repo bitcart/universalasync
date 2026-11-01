@@ -33,6 +33,10 @@ jobs:
     needs: [lint, zizmor]
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      id-token: write # OIDC token for codecov uploads
+
     strategy:
       matrix:
         python-version: ["3.11", "3.12", "3.13", "3.14", "3.14t", "3.15", "3.15t"]
@@ -62,7 +66,6 @@ jobs:
         uses: bitcart/bitcart-actions/actions/codecov@master
         if: ${{ !cancelled() }}
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           name: Tests - Python ${{ env.PYTHON }}
           flags: tests
           env_vars: PYTHON
