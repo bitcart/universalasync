@@ -1,4 +1,21 @@
+import contextlib
+import threading
+
 from universalasync import get_event_loop, wrap
+
+
+@contextlib.contextmanager
+def running_in_thread(loop):
+    thread = threading.Thread(target=loop.run_forever)
+    started = threading.Event()
+    loop.call_soon_threadsafe(started.set)
+    thread.start()
+    started.wait()
+    try:
+        yield
+    finally:
+        loop.call_soon_threadsafe(loop.stop)
+        thread.join()
 
 
 class SampleSession:
@@ -16,6 +33,7 @@ class SampleSession:
 class SampleClass:
     def __init__(self):
         self._session = SampleSession()
+        self._value = 0
 
     async def __aenter__(self):
         return self
@@ -36,6 +54,14 @@ class SampleClass:
     @property
     async def async_property(self):
         return True
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self._value = value
 
     async def async_gen(self):
         for i in range(10):

@@ -2,6 +2,12 @@
 
 ## Latest changes
 
+## 0.6.3.0
+
+Fix wrapped functions returning an unawaited coroutine when called from a thread whose event loop is running in another thread: they now run on that loop and return the result
+
+Fix sync properties and other data descriptors (like `__slots__` members) of classes wrapped with `wrap`/`async_to_sync` returning `None` and losing their setters, and wrapped properties losing their docstrings
+
 ## 0.6.2.0
 
 Now using immutable releases

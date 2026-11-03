@@ -25,12 +25,37 @@ def iter_over_async(agen: AsyncGenerator[Any, Any], run_func: Callable) -> Gener
         yield obj
 
 
+def run_in_loop(coroutine: Any, loop: asyncio.AbstractEventLoop) -> Any:
+    if loop.is_running():
+        return asyncio.run_coroutine_threadsafe(coroutine, loop).result()
+    return loop.run_until_complete(coroutine)
+
+
 def run_sync_ctx(coroutine: Any, loop: asyncio.AbstractEventLoop) -> Any:
     if inspect.isawaitable(coroutine):
-        return loop.run_until_complete(coroutine)
+        return run_in_loop(coroutine, loop)
 
     if inspect.isasyncgen(coroutine):
-        return iter_over_async(coroutine, lambda coro: loop.run_until_complete(coro))
+        return iter_over_async(coroutine, lambda coro: run_in_loop(coro, loop))
+
+    return coroutine
+
+
+class WrappedDescriptor:
+    def __init__(self, descriptor: Any, getter: Callable) -> None:
+        self.descriptor = descriptor
+        self.getter = getter
+
+    def __get__(self, instance: Any, owner: type | None = None) -> Any:
+        if instance is None:
+            return self
+        return self.getter(instance)
+
+    def __set__(self, instance: Any, value: Any) -> None:
+        self.descriptor.__set__(instance, value)
+
+    def __delete__(self, instance: Any) -> None:
+        self.descriptor.__delete__(instance)
 
 
 def async_to_sync_wraps(function: Callable) -> Callable:
@@ -38,7 +63,8 @@ def async_to_sync_wraps(function: Callable) -> Callable:
 
     This allows to run wrapped methods in both async and sync contexts transparently without any additional code
 
-    When run from another thread, it runs coroutines in new thread's event loop
+    When run from another thread, it runs coroutines in new thread's event loop.
+    If the current thread's event loop is running in another thread, it runs coroutines there and waits for the result
 
     See [Example](index.md#example-of-usage) for full example
 
@@ -48,22 +74,25 @@ def async_to_sync_wraps(function: Callable) -> Callable:
     Returns:
         Callable: modified function
     """
+    descriptor = function
     is_property = inspect.isdatadescriptor(function)
     if is_property:
         function = cast(types.MethodDescriptorType, function).__get__
 
-    @functools.wraps(function)
+    @functools.wraps(getattr(descriptor, "fget", None) or function)
     def async_to_sync_wrap(*args: Any, **kwargs: Any) -> Any:
         loop = get_event_loop()
         coroutine = function(*args, **kwargs)
 
-        if loop.is_running():
+        if asyncio._get_running_loop() is loop:
             return coroutine
         return run_sync_ctx(coroutine, loop)
 
-    result = async_to_sync_wrap
-    if is_property:
-        result = cast(Callable, property(cast(Callable, result)))  # type: ignore
+    result: Callable = async_to_sync_wrap
+    if isinstance(descriptor, property):
+        result = cast(Callable, descriptor.getter(result))
+    elif is_property:
+        result = cast(Callable, WrappedDescriptor(descriptor, result))
     return result
 
 

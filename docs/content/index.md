@@ -18,6 +18,7 @@ Otherwise the library calls the coroutine via various loop methods, like as if y
 There should be no issues at all, the only limitation is that signals and async subprocesses are supported only when running in the main thread.
 
 Also note that when run from a different OS thread, the library will create a new event loop there and run coroutines.
+If that thread's event loop is already running in another thread, coroutines are run there and the call waits for the result.
 
 This means that resources bound to a certain event loop (like `aiohttp.ClientSession`) need one instance per event loop.
 

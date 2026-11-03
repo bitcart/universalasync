@@ -1,5 +1,4 @@
 import asyncio
-import contextlib
 import gc
 import sys
 import threading
@@ -7,6 +6,7 @@ import weakref
 
 import pytest
 
+from tests.utils import running_in_thread
 from universalasync import LoopLocal, get_event_loop
 
 
@@ -89,17 +89,6 @@ def test_async_close_waits_for_values_on_idle_loops(loops):
     resource = get_on(loops[0], holder)
     loops[1].run_until_complete(close_from_loop(holder))
     assert resource.closed_on is loops[0]
-
-
-@contextlib.contextmanager
-def running_in_thread(loop):
-    thread = threading.Thread(target=loop.run_forever)
-    thread.start()
-    try:
-        yield
-    finally:
-        loop.call_soon_threadsafe(loop.stop)
-        thread.join()
 
 
 def test_sync_close_value_on_loop_running_in_other_thread(loops):

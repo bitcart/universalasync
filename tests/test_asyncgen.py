@@ -1,5 +1,6 @@
 from types import AsyncGeneratorType, GeneratorType
 
+from tests.utils import running_in_thread
 from universalasync import get_event_loop
 
 
@@ -13,3 +14,9 @@ def test_asyncgen(client):
 
     loop = get_event_loop()
     loop.run_until_complete(async_part())
+
+
+def test_asyncgen_when_loop_is_running_in_other_thread(client):
+    with running_in_thread(get_event_loop()):
+        assert type(client.async_gen()) is GeneratorType
+        assert list(client.async_gen()) == list(range(10))

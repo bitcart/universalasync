@@ -6,8 +6,8 @@ on:
       - master
 
 concurrency:
-  group: docs-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow_ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: read

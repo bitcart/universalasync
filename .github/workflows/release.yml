@@ -5,7 +5,7 @@ on:
     types: [created]
 
 concurrency:
-  group: ${{ github.workflow_ref }}-${{ github.event.release.tag_name }}
+  group: ${{ github.workflow_ref }}
   cancel-in-progress: false
 
 permissions:
