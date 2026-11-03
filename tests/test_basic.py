@@ -1,5 +1,6 @@
 import asyncio
 import threading
+import types
 import weakref
 
 import pytest
@@ -68,8 +69,11 @@ class SampleDescriptors:
         self.value = 0
 
 
-@pytest.mark.parametrize("cls", [SampleSlots, SampleDescriptors])
-def test_data_descriptors_are_kept(cls):
+@pytest.mark.parametrize(
+    ("cls", "descriptor_type"), [(SampleSlots, types.MemberDescriptorType), (SampleDescriptors, SettableDescriptor)]
+)
+def test_data_descriptors_are_kept(cls, descriptor_type):
+    assert type(cls.value) is descriptor_type
     obj = cls()
     assert obj.value == 0
     obj.value = 1

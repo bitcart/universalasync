@@ -48,7 +48,7 @@ class WrappedDescriptor:
 
     def __get__(self, instance: Any, owner: type | None = None) -> Any:
         if instance is None:
-            return self
+            return self.descriptor.__get__(None, owner)
         return self.getter(instance)
 
     def __set__(self, instance: Any, value: Any) -> None:
