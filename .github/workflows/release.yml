@@ -7,9 +7,14 @@ on:
 concurrency:
   group: ${{ github.workflow_ref }}
   cancel-in-progress: false
+  queue: max
 
 permissions:
   contents: read
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
   release:

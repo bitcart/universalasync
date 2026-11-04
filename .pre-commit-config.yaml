@@ -41,4 +41,5 @@ repos:
         types: [text]
         language: node
         require_serial: true
-        entry: npx oxfmt --no-error-on-unmatched-pattern
+        entry: oxfmt --no-error-on-unmatched-pattern
+        additional_dependencies: [oxfmt@0.75.0]
