@@ -43,8 +43,7 @@ Changelog = "https://github.com/bitcart/universalasync/blob/master/CHANGELOG.md"
 
 [dependency-groups]
 lint = ["deptry", "mypy", "prek", "ruff"]
-# TODO: unpin pytest once pytest-benchmark releases https://github.com/ionelmc/pytest-benchmark/pull/323
-test = ["pytest<9.2", "pytest-benchmark", "pytest-cov", "pytest-durations"]
+test = ["pytest", "pytest-benchmark>=5.3.1", "pytest-cov", "pytest-durations"]
 docs = ["zensical", "mkdocstrings-python"]
 dev = ["rust-just>=1.46.0", { include-group = "lint" }, { include-group = "test" }]
 all = [{ include-group = "dev" }, { include-group = "docs" }]
@@ -53,6 +52,10 @@ all = [{ include-group = "dev" }, { include-group = "docs" }]
 cache-keys = [{ file = "pyproject.toml" }, { file = "universalasync/version.py" }]
 # dependency cooldowns for security
 exclude-newer = "1 week"
+
+# TODO: remove after 2026-11-08, when pytest-benchmark 5.3.1 is past the cooldown
+[tool.uv.exclude-newer-package]
+pytest-benchmark = "0 days"
 
 [tool.hatch.build.targets.sdist]
 include = ["universalasync", "tests", "CHANGELOG.md"]
