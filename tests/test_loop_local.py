@@ -230,7 +230,7 @@ def collect_inside(loop, holders, predicate):
 def test_garbage_collection_inside_other_loop_closes_values_on_idle_loops(loops):
     holders = [LoopLocal(close_resource)]
     resource = get_on(loops[0], holders[0])
-    collect_inside(loops[1], holders, lambda: resource.closed_on is not None)
+    collect_inside(loops[1], holders, lambda: resource.closed_on is not None and not loops[0].is_running())
     assert resource.closed_on is loops[0]
 
 
