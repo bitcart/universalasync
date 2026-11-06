@@ -2,6 +2,8 @@
 
 ## Latest changes
 
+## 0.6.3.1
+
 Fix async `__call__` not being converted by `wrap`/`async_to_sync`
 
 Fix async classmethods and staticmethods converted by `wrap`/`async_to_sync` failing when called on an instance, and classmethods receiving the parent class when called on a subclass
