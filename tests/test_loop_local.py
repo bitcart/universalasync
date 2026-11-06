@@ -125,6 +125,62 @@ def test_async_close_value_on_closed_loop(loops):
     assert resource.closed_on is loops[1]
 
 
+async def close_needing_owner_loop(resource):
+    resource.closed_on = asyncio.get_running_loop()
+    resource.loop.call_soon(print)
+
+
+def test_sync_close_ignores_closed_owner_loop(loops):
+    holder = LoopLocal(close_needing_owner_loop)
+    resource = get_on(loops[0], holder)
+    loops[0].close()
+    holder.close()
+    assert resource.closed_on is not None
+
+
+def test_async_close_ignores_closed_owner_loop(loops):
+    holder = LoopLocal(close_needing_owner_loop)
+    resource = get_on(loops[0], holder)
+    loops[0].close()
+    loops[1].run_until_complete(close_from_loop(holder))
+    assert resource.closed_on is loops[1]
+
+
+def test_new_value_ignores_closed_owner_loop_of_stale_value(loops):
+    errors = []
+    loops[1].set_exception_handler(lambda loop, context: errors.append(context))
+    holder = LoopLocal(close_needing_owner_loop)
+    stale = get_on(loops[0], holder)
+    loops[0].close()
+    get_on(loops[1], holder)
+    loops[1].run_until_complete(wait_closed(stale))
+    gc.collect()
+    assert errors == []
+
+
+async def close_with_other_runtime_error(resource):
+    raise RuntimeError("other error")
+
+
+def test_other_runtime_errors_on_closed_owner_loop_are_raised(loops):
+    holder = LoopLocal(close_with_other_runtime_error)
+    get_on(loops[0], holder)
+    loops[0].close()
+    with pytest.raises(RuntimeError, match="other error"):
+        holder.close()
+
+
+async def close_raising_closed_loop_error(resource):
+    raise RuntimeError("Event loop is closed")
+
+
+def test_closed_loop_error_is_raised_when_owner_loop_is_open(loops):
+    holder = LoopLocal(close_raising_closed_loop_error)
+    get_on(loops[0], holder)
+    with pytest.raises(RuntimeError, match="Event loop is closed"):
+        holder.close()
+
+
 def test_garbage_collection_closes_values(loops):
     holder = LoopLocal(close_resource)
     resource = get_on(loops[0], holder)

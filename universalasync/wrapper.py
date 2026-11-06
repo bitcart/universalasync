@@ -74,6 +74,9 @@ def async_to_sync_wraps(function: Callable) -> Callable:
     Returns:
         Callable: modified function
     """
+    if isinstance(function, classmethod | staticmethod):
+        return cast(Callable, type(function)(async_to_sync_wraps(function.__func__)))
+
     descriptor = function
     is_property = inspect.isdatadescriptor(function)
     if is_property:
@@ -99,8 +102,15 @@ def async_to_sync_wraps(function: Callable) -> Callable:
 T = TypeVar("T")
 
 
+def _is_async(function: Any) -> bool:
+    return inspect.iscoroutinefunction(function) or inspect.isasyncgenfunction(function)
+
+
 def async_to_sync(source: T) -> T:
     """Convert all public async methods/properties of an object to universal methods.
+
+    Async `__call__`, classmethods and staticmethods are converted too.
+    Subclasses adding or overriding async members need to be converted as well.
 
     See [`async_to_sync_wraps`][universalasync.wrapper.async_to_sync_wraps] for more info
 
@@ -114,9 +124,15 @@ def async_to_sync(source: T) -> T:
         method = getattr(source, name)
 
         if not name.startswith("_"):
-            if inspect.iscoroutinefunction(method) or inspect.isasyncgenfunction(method) or inspect.isdatadescriptor(method):
+            static = inspect.getattr_static(source, name, None) if inspect.isclass(source) else None
+            if isinstance(static, classmethod | staticmethod) and _is_async(static.__func__):
+                setattr(source, name, async_to_sync_wraps(cast(Callable, static)))
+            elif _is_async(method) or inspect.isdatadescriptor(method):
                 function = getattr(source, name)
                 setattr(source, name, async_to_sync_wraps(function))
+
+        elif name == "__call__" and _is_async(method):
+            setattr(source, name, async_to_sync_wraps(method))
 
         elif name == "__aenter__" and not hasattr(source, "__enter__"):
             source.__enter__ = async_to_sync_wraps(method)  # type: ignore

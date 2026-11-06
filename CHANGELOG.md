@@ -2,6 +2,12 @@
 
 ## Latest changes
 
+Fix async `__call__` not being converted by `wrap`/`async_to_sync`
+
+Fix async classmethods and staticmethods converted by `wrap`/`async_to_sync` failing when called on an instance, and classmethods receiving the parent class when called on a subclass
+
+Fix `LoopLocal` logging `Event loop is closed` errors when closing values whose event loop is already closed, like `httpx2` clients with open connections
+
 ## 0.6.3.0
 
 Fix wrapped functions returning an unawaited coroutine when called from a thread whose event loop is running in another thread: they now run on that loop and return the result

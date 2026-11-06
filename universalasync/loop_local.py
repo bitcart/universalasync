@@ -23,7 +23,8 @@ class LoopLocal(Generic[T]):
     Args:
         close (Callable): async function closing a value. It must not reference the object holding this `LoopLocal`,
             or that object is never garbage collected. When the loop owning a value is already closed,
-            the value is closed on another loop, so `close` must not need the closed loop
+            the value is closed on another loop, and an `Event loop is closed` error from `close` is ignored:
+            whatever was bound to that loop can't be cleaned up anymore
     """
 
     def __init__(self, close: Callable[[T], Coroutine[Any, Any, Any]]) -> None:
@@ -68,7 +69,9 @@ class LoopLocal(Generic[T]):
         awaitables: list[Awaitable[Any]] = []
         for loop, value in _pop_all(self._values):
             coroutine = self._close(value)
-            if loop is running_loop or loop.is_closed():
+            if loop.is_closed():
+                awaitables.append(_ignore_closed_loop(coroutine))
+            elif loop is running_loop:
                 awaitables.append(coroutine)
             elif loop.is_running():
                 awaitables.append(asyncio.wrap_future(asyncio.run_coroutine_threadsafe(coroutine, loop)))
@@ -112,9 +115,18 @@ def _close_values_or_raise(values: dict[asyncio.AbstractEventLoop, T], close: Ca
         raise errors[0]
 
 
+async def _ignore_closed_loop(coroutine: Coroutine[Any, Any, Any]) -> None:
+    try:
+        await coroutine
+    except RuntimeError as e:
+        if str(e) != "Event loop is closed":
+            raise
+
+
 def _close_on(loop: asyncio.AbstractEventLoop, coroutine: Coroutine[Any, Any, Any]) -> None:
     running_loop = asyncio._get_running_loop()
     if loop.is_closed():
+        coroutine = _ignore_closed_loop(coroutine)
         if running_loop is None:
             temporary_loop = asyncio.new_event_loop()
             try:

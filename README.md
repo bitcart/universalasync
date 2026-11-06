@@ -104,6 +104,10 @@ threading.Thread(target=asyncio.run, args=(async_call(),)).start()
 The mode is chosen when a wrapped method is called: outside a running event loop it runs to completion and returns the result.
 So `asyncio.run(client.help())` doesn't work, as `client.help()` has already run before `asyncio.run` starts a loop. Await it inside a coroutine instead, like `async_call` above.
 
+`wrap` only converts the class it's applied to, so subclasses adding or overriding async members need their own `@wrap`.
+
+Type checkers see wrapped methods as async, so sync callers get type errors, and a sync helper called inside a running event loop gets a coroutine instead of a result.
+
 ## Copyright and License
 
 Copyright (C) 2021 MrNaif2018
